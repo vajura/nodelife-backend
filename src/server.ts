@@ -17,6 +17,8 @@ import expressValidator = require('express-validator');
 import * as bluebird from 'bluebird';
 import * as HttpStatus from 'http-status-codes';
 import { BaseController } from './controllers/base-controller';
+import { SocketServer } from './controllers/socket';
+import { SocketTypeEnum } from './models/socket-type-enum';
 const cors = require('cors');
 const MongoStore = mongo(session);
 dotenv.config({ path: '.env' });
@@ -25,6 +27,7 @@ dotenv.config({ path: '.env' });
  * Create Express server.
  */
 const app = express();
+export let cellFieldSocket: SocketServer;
 
 const mongoUrl = process.env.MONGOLAB_URI;
 (<any>mongoose).Promise = bluebird;
@@ -33,6 +36,7 @@ mongoose.connect(mongoUrl, {useMongoClient: true}).then(
   async () => {
     const db = mongoose.connection.db;
     defineRoutes();
+    startSocketIO();
     startServer();
   }).catch(err => {
   console.log('MongoDB connection error. Please make sure MongoDB is running. ', err);
@@ -50,6 +54,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(expressValidator());
+app.use(cors({origin: true}));
 app.use(session({
   resave: true,
   saveUninitialized: true,
@@ -69,9 +74,11 @@ app.use(cors({credentials: true, origin: true}));
 /*app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }));
 app.use(express.static(path.join(__dirname, '../upload'), { maxAge: 31557600000 }));*/
 
-function defineRoutes() {
+function startSocketIO() {
+  cellFieldSocket = new SocketServer(app, SocketTypeEnum.CELL_FIELD);
+}
 
-  // app.route('/googlehook').post(googleHook);
+function defineRoutes() {
 
   const controllers: BaseController[] = [
     // new TilesController()
@@ -103,9 +110,8 @@ function startServer() {
    * Start Express server.
    */
   app.listen(app.get('port'), () => {
-    console.log(('  App is running at http://localhost:%d in %s mode'), app.get('port'), app.get('env'));
-    console.log('  Press CTRL-C to stop\n');
+    console.log(('App is running at http://localhost:%d in %s mode'), app.get('port'), app.get('env'));
+    console.log('Press CTRL-C to stop\n');
   });
 }
-
 module.exports = app;

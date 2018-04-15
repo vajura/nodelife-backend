@@ -1,4 +1,5 @@
 import { Cell } from './life-cell-model';
+import { cellFieldSocket } from '../server';
 
 export class LifeSimulator {
 

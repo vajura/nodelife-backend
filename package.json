@@ -16,6 +16,7 @@
     "@types/elasticsearch": "^5.0.22",
     "@types/express-fileupload": "^0.1.1",
     "@types/http-status-codes": "^1.2.0",
+    "@types/socket.io": "^1.4.33",
     "@types/xml2js": "^0.4.2",
     "amqplib": "^0.5.2",
     "async": "^2.1.2",
@@ -46,6 +47,7 @@
     "passport-local": "^1.0.0",
     "pug": "^2.0.0-beta6",
     "request": "^2.78.0",
+    "socket.io": "^2.1.0",
     "ts-node": "^4.1.0",
     "tslint": "^5.9.1",
     "xml2js": "^0.4.19"
