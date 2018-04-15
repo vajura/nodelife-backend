@@ -19,6 +19,7 @@ import * as HttpStatus from 'http-status-codes';
 import { BaseController } from './controllers/base-controller';
 import { SocketServer } from './controllers/socket';
 import { SocketTypeEnum } from './models/socket-type-enum';
+import { LifeSimulator } from './models/life-simulator-model';
 const cors = require('cors');
 const MongoStore = mongo(session);
 dotenv.config({ path: '.env' });
@@ -38,6 +39,7 @@ mongoose.connect(mongoUrl, {useMongoClient: true}).then(
     defineRoutes();
     startSocketIO();
     startServer();
+    startLifeSimulator();
   }).catch(err => {
   console.log('MongoDB connection error. Please make sure MongoDB is running. ', err);
   process.exit();
@@ -76,6 +78,10 @@ app.use(express.static(path.join(__dirname, '../upload'), { maxAge: 31557600000 
 
 function startSocketIO() {
   cellFieldSocket = new SocketServer(app, SocketTypeEnum.CELL_FIELD);
+}
+
+function startLifeSimulator() {
+  const lifeSimulator = new LifeSimulator(1500,800);
 }
 
 function defineRoutes() {

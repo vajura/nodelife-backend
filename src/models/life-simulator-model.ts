@@ -5,6 +5,7 @@ export class LifeSimulator {
 
   public cellField: Cell[][];
   public liveCells: Cell[];
+  counter = 0;
 
   constructor(public width: number, public height: number, interval: number = 0) {
     this.cellField = LifeSimulator.generateField(width, height);
@@ -16,8 +17,12 @@ export class LifeSimulator {
   public startSimulation(interval: number) {
     setInterval(() => {
       const templiveCells: Cell[] = [];
+      this.liveCells.push(new Cell(this.counter, this.counter));
+      this.counter++;
       for (let a = 0; a < this.liveCells.length; a++) {
-
+      }
+      if (cellFieldSocket.socket) {
+        cellFieldSocket.socket.send(this.liveCells);
       }
     }, interval);
   }

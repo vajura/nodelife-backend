@@ -1,10 +1,12 @@
 import { createServer, Server } from 'http';
 import * as socketIo from 'socket.io';
 import { SocketTypeEnum } from '../models/socket-type-enum';
+import { Socket } from 'socket.io';
 
 export class SocketServer {
   public server: Server;
   public io: SocketIO.Server;
+  public socket: Socket;
 
   constructor(app: any, socketType: SocketTypeEnum) {
     this.server = createServer(app);
@@ -19,15 +21,12 @@ export class SocketServer {
   }
 
   cellFieldSocket() {
-    this.io.on('connect', (socket: any) => {
-      console.log('Connected client on port %s.', process.env.SOCKET_PORT);
-      socket.on('message', (m: any) => {
-        console.log('[server](message): %s', JSON.stringify(m));
-        this.io.emit('message', m);
-      });
+    this.io.on('connect', (socket: Socket) => {
+      this.socket = socket;
       socket.on('disconnect', () => {
         console.log('Client disconnected');
       });
+      console.log('Connected client on port %s.', process.env.SOCKET_PORT);
     });
   }
 }
