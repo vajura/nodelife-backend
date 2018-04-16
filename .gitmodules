@@ -1,0 +1,4 @@
+[submodule "commons"]
+	path = commons
+	branch = master
+	url = git@github.com:vajura/nodelife-commons.git
