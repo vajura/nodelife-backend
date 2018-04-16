@@ -81,7 +81,7 @@ function startSocketIO() {
 }
 
 function startLifeSimulator() {
-  const lifeSimulator = new LifeSimulator(1500,800);
+  const lifeSimulator = new LifeSimulator(4000,4000);
 }
 
 function defineRoutes() {
