@@ -5,6 +5,8 @@ export class Cell {
   public color: any;
   public owner: any;
   public liveNeighbours = 0;
+  public index: number;
+
   public static cellField: Cell[];
   public static height: number;
   public static width: number;
@@ -13,6 +15,8 @@ export class Cell {
     this.alive = 1;
     this.ignore = true;
     this.color = 0;
-    Cell.cellField[y * Cell.width + x] = this;
+    const index = y * Cell.width + x;
+    this.index = index;
+    Cell.cellField[index] = this;
   }
 }
