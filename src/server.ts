@@ -28,7 +28,7 @@ dotenv.config({ path: '.env' });
  * Create Express server.
  */
 const app = express();
-export let cellFieldSocket: SocketServer;
+export let socketServer: SocketServer;
 
 const mongoUrl = process.env.MONGOLAB_URI;
 (<any>mongoose).Promise = bluebird;
@@ -77,11 +77,11 @@ app.use(cors({credentials: true, origin: true}));
 app.use(express.static(path.join(__dirname, '../upload'), { maxAge: 31557600000 }));*/
 
 function startSocketIO() {
-  cellFieldSocket = new SocketServer(app, SocketTypeEnum.CELL_FIELD);
+  socketServer = new SocketServer(app, SocketTypeEnum.CELL_FIELD);
 }
 
 function startLifeSimulator() {
-  const lifeSimulator = new LifeSimulator(4000, 4000);
+  const lifeSimulator = new LifeSimulator(5000, 5000);
 }
 
 function defineRoutes() {

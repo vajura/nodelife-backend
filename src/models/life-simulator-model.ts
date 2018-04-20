@@ -1,5 +1,5 @@
-import { Cell } from './life-cell-model';
-import { cellFieldSocket } from '../server';
+import { socketServer } from '../server';
+import { Cell } from './cell-model';
 
 export class LifeSimulator {
 
@@ -13,8 +13,9 @@ export class LifeSimulator {
     Cell.cellField = this.cellField;
     Cell.height = this.height;
     Cell.width = this.width;
-    this.generateNeighboursHash();
     this.liveCells = [];
+    this.generateHashField();
+    this.generateNeighboursHash();
     for (let a = 0; a < 500; a += 6) {
       this.liveCells.push(new Cell(50 + a, 50 + a));
       this.liveCells.push(new Cell(50 + a, 51 + a));
@@ -22,32 +23,8 @@ export class LifeSimulator {
       this.liveCells.push(new Cell(49 + a, 52 + a));
       this.liveCells.push(new Cell(48 + a, 51 + a));
     }
-    /*
-    Any live cell with fewer than two live neighbours dies, as if caused by underpopulation.
-    Any live cell with two or three live neighbours lives on to the next generation.
-    Any live cell with more than three live neighbours dies, as if by overpopulation.
-    Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-    */
-    for (let a = 0; a < 8; a++) {
-      for (let b = 0; b < 8; b++) {
-        if (a != b) {
-          const num = Math.pow(2, a) + Math.pow(2, b);
-          this.numHash[Number(num)] = 2;
-          for (let c = 0; c < 8; c++) {
-            if (a != c && b != c) {
-              const num2 = Math.pow(2, a) + Math.pow(2, b) + Math.pow(2, c);
-              this.numHash[Number(num2)] = 3;
-            }
-          }
-        }
-      }
-    }
     this.startSimulation(process.env.SIMULATION_INTERVAL | interval);
-    setInterval(() => {
-      if (cellFieldSocket.socket) {
-        cellFieldSocket.socket.emit('message', this.liveCells);
-      }
-    }, process.env.SIMULATION_INTERVAL);
+    this.startSocketCommunication(process.env.SOCKET_INTERVAL | interval);
   }
 
   public startSimulation(interval: number) {
@@ -70,7 +47,9 @@ export class LifeSimulator {
           const indexX = this.liveCells[a].x + this.neighboursHash[b].x;
           const indexY = this.liveCells[a].y + this.neighboursHash[b].y;
           const index = (indexY) * this.width + indexX;
-          if (!neighbourCells[index] &&
+          if (indexX > 1 && indexX < this.width - 1 &&
+            indexY > 1 && indexY < this.height - 1 &&
+            !neighbourCells[index] &&
           !this.cellField[index] &&
           this.numHash[this.calculateNeighbours(indexX, indexY)] === 3) {
             neighbourCells[index] = {};
@@ -91,6 +70,32 @@ export class LifeSimulator {
       this.liveCells = tempLiveCells;
       this.startSimulation(interval);
     }, interval);
+  }
+
+  public startSocketCommunication(interval: number) {
+
+    setInterval(() => {
+      for (let a = 0; a < socketServer.socketList.length; a++) {
+        const socket = socketServer.sockets[socketServer.socketList[a] as any];
+        if (socket.connected) {
+          socket.emit('message', this.liveCells);
+        }
+      }
+    }, interval);
+  }
+
+  public addCells(cells: Cell[]) {
+
+  }
+
+  public static generateField(width: number, height: number) {
+    const cellField: Cell[] = [];
+    for (let a = 0; a < height; a++) {
+      for (let b = 0; b < width; b++) {
+        cellField[a * width + b] = undefined;
+      }
+    }
+    return cellField;
   }
 
   public calculateNeighbours(x: number, y: number): number {
@@ -122,23 +127,26 @@ export class LifeSimulator {
     return liveNeighbours;
   }
 
-  private generateNeighboursHash() {
-    this.neighboursHash = [{x: -1, y: -1, m: 1}, {x: 0, y: -1, m: 2}, {x: 1, y: -1, m: 4},
-                           {x: -1, y: 0, m: 8},                       {x: 1, y: 0, m: 16},
-                           {x: -1, y: 1, m: 32}, {x: 0, y: 1, m: 64}, {x: 1, y: 1, m: 128}];
-  }
-
-  public addCells(cells: Cell[]) {
-
-  }
-
-  public static generateField(width: number, height: number) {
-    const cellField: Cell[] = [];
-    for (let a = 0; a < height; a++) {
-      for (let b = 0; b < width; b++) {
-        cellField[a * width + b] = undefined;
+  private generateHashField() {
+    for (let a = 0; a < 8; a++) {
+      for (let b = 0; b < 8; b++) {
+        if (a != b) {
+          const num = Math.pow(2, a) + Math.pow(2, b);
+          this.numHash[Number(num)] = 2;
+          for (let c = 0; c < 8; c++) {
+            if (a != c && b != c) {
+              const num2 = Math.pow(2, a) + Math.pow(2, b) + Math.pow(2, c);
+              this.numHash[Number(num2)] = 3;
+            }
+          }
+        }
       }
     }
-    return cellField;
+  }
+
+  private generateNeighboursHash() {
+    this.neighboursHash = [{x: -1, y: -1, m: 1}, {x: 0, y: -1, m: 2}, {x: 1, y: -1, m: 4},
+      {x: -1, y: 0, m: 8},                       {x: 1, y: 0, m: 16},
+      {x: -1, y: 1, m: 32}, {x: 0, y: 1, m: 64}, {x: 1, y: 1, m: 128}];
   }
 }

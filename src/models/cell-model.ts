@@ -1,9 +1,11 @@
+import { Socket } from 'socket.io';
+
 export class Cell {
 
   public alive: number;
   public ignore: boolean;
   public color: any;
-  public owner: any;
+  public owner: Socket;
   public liveNeighbours = 0;
   public index: number;
 
