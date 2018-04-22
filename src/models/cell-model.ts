@@ -16,7 +16,7 @@ export class Cell {
   constructor(public x: number, public y: number) {
     this.alive = 1;
     this.ignore = true;
-    this.color = 0;
+    this.color = 0xFF000000;
     const index = y * Cell.width + x;
     this.index = index;
     Cell.cellField[index] = this;

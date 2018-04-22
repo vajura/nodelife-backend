@@ -18,7 +18,6 @@ import * as bluebird from 'bluebird';
 import * as HttpStatus from 'http-status-codes';
 import { BaseController } from './controllers/base-controller';
 import { SocketServer } from './controllers/socket';
-import { SocketTypeEnum } from './models/socket-type-enum';
 import { LifeSimulator } from './models/life-simulator-model';
 const cors = require('cors');
 const MongoStore = mongo(session);
@@ -77,7 +76,7 @@ app.use(cors({credentials: true, origin: true}));
 app.use(express.static(path.join(__dirname, '../upload'), { maxAge: 31557600000 }));*/
 
 function startSocketIO() {
-  socketServer = new SocketServer(app, SocketTypeEnum.CELL_FIELD);
+  socketServer = new SocketServer(app);
 }
 
 function startLifeSimulator() {

@@ -1,5 +1,7 @@
 import { socketServer } from '../server';
 import { Cell } from './cell-model';
+import { SocketEventEnum } from '../../commons/enums/socket-event-enum';
+import { PlayerSocketInterface } from '../interfaces/player-socket-interface';
 
 export class LifeSimulator {
 
@@ -16,7 +18,7 @@ export class LifeSimulator {
     this.liveCells = [];
     this.generateHashField();
     this.generateNeighboursHash();
-    for (let a = 0; a < 500; a += 6) {
+    for (let a = 0; a < 100; a += 6) {
       this.liveCells.push(new Cell(50 + a, 50 + a));
       this.liveCells.push(new Cell(50 + a, 51 + a));
       this.liveCells.push(new Cell(50 + a, 52 + a));
@@ -50,8 +52,8 @@ export class LifeSimulator {
           if (indexX > 1 && indexX < this.width - 1 &&
             indexY > 1 && indexY < this.height - 1 &&
             !neighbourCells[index] &&
-          !this.cellField[index] &&
-          this.numHash[this.calculateNeighbours(indexX, indexY)] === 3) {
+            !this.cellField[index] &&
+            this.numHash[this.calculateNeighbours(indexX, indexY)] === 3) {
             neighbourCells[index] = {};
             neighbourCells[index].x = indexX;
             neighbourCells[index].y = indexY;
@@ -77,8 +79,24 @@ export class LifeSimulator {
     setInterval(() => {
       for (let a = 0; a < socketServer.socketList.length; a++) {
         const socket = socketServer.sockets[socketServer.socketList[a] as any];
-        if (socket.connected) {
-          socket.emit('message', this.liveCells);
+        if (socket.s.connected) {
+          const viewPortCells: Cell[] = [];
+          try {
+            // TODO might be able to speed this up with calculating beforehand
+            for (let b = 0; b < socket.viewPortH; b++) {
+              const xPos = (b + socket.viewPortY) * this.width;
+              for (let c = 0; c < socket.viewPortW; c++) {
+                const yPos = c + socket.viewPortX;
+                const cell = this.cellField[xPos + yPos];
+                if (cell) {
+                  viewPortCells.push(cell);
+                }
+              }
+            }
+          } catch (error) {
+            console.log('NEEDS TO BE THREAD SAFE', error);
+          }
+          socket.s.emit(SocketEventEnum.updateField, viewPortCells);
         }
       }
     }, interval);
