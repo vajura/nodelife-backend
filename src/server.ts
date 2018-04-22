@@ -28,7 +28,7 @@ dotenv.config({ path: '.env' });
  */
 const app = express();
 export let socketServer: SocketServer;
-export let lifeSimulator;
+export let lifeSimulator: LifeSimulator;
 
 const mongoUrl = process.env.MONGOLAB_URI;
 (<any>mongoose).Promise = bluebird;
