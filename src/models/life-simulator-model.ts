@@ -10,7 +10,7 @@ export class LifeSimulator {
   public neighboursHash: any[] = [];
   public numHash: number[] = [];
 
-  constructor(public width: number, public height: number, interval: number = 0) {
+  constructor(public width: number, public height: number, interval: number) {
     this.cellField = LifeSimulator.generateField(width, height);
     Cell.cellField = this.cellField;
     Cell.height = this.height;
