@@ -28,6 +28,7 @@ dotenv.config({ path: '.env' });
  */
 const app = express();
 export let socketServer: SocketServer;
+export let lifeSimulator;
 
 const mongoUrl = process.env.MONGOLAB_URI;
 (<any>mongoose).Promise = bluebird;
@@ -80,7 +81,7 @@ function startSocketIO() {
 }
 
 function startLifeSimulator() {
-  const lifeSimulator = new LifeSimulator(5000, 5000);
+  lifeSimulator = new LifeSimulator(5000, 5000);
 }
 
 function defineRoutes() {

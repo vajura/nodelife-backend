@@ -4,6 +4,8 @@ import { Socket } from 'socket.io';
 import { PlayerSocketInterface } from '../interfaces/player-socket-interface';
 import { SocketEventEnum } from '../../commons/enums/socket-event-enum';
 import { createPlayer, PlayerInterface } from '../../commons/interfaces/player-interface';
+import { Cell } from '../models/cell-model';
+import { lifeSimulator } from '../server';
 
 
 export class SocketServer {
@@ -32,10 +34,17 @@ export class SocketServer {
         this.updatePlayerData(socket, data);
       });
 
+      socket.on(SocketEventEnum.addCells, (cells: any[]) => {
+        this.addCells(socket, cells);
+      });
       socket.on('disconnect', () => {
         this.onDisconnect(socket);
       });
     });
+  }
+
+  addCells(socket: Socket, cells: any[]) {
+    lifeSimulator.addCells(socket, cells);
   }
 
   updatePlayerData(socket: Socket, data: PlayerInterface) {

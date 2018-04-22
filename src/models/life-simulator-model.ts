@@ -1,7 +1,7 @@
 import { socketServer } from '../server';
 import { Cell } from './cell-model';
 import { SocketEventEnum } from '../../commons/enums/socket-event-enum';
-import { PlayerSocketInterface } from '../interfaces/player-socket-interface';
+import { Socket } from 'socket.io';
 
 export class LifeSimulator {
 
@@ -18,12 +18,18 @@ export class LifeSimulator {
     this.liveCells = [];
     this.generateHashField();
     this.generateNeighboursHash();
+    this.liveCells.push(new Cell(40, 40));
+    this.liveCells.push(new Cell(40, 41));
+    this.liveCells.push(new Cell(41, 40));
+    this.liveCells.push(new Cell(46, 46));
+    this.liveCells.push(new Cell(47, 46));
+    this.liveCells.push(new Cell(46, 47));
     for (let a = 0; a < 100; a += 6) {
-      this.liveCells.push(new Cell(50 + a, 50 + a));
-      this.liveCells.push(new Cell(50 + a, 51 + a));
-      this.liveCells.push(new Cell(50 + a, 52 + a));
-      this.liveCells.push(new Cell(49 + a, 52 + a));
-      this.liveCells.push(new Cell(48 + a, 51 + a));
+      this.liveCells.push(new Cell(53 + a, 53 + a));
+      this.liveCells.push(new Cell(53 + a, 54 + a));
+      this.liveCells.push(new Cell(53 + a, 55 + a));
+      this.liveCells.push(new Cell(52 + a, 55 + a));
+      this.liveCells.push(new Cell(51 + a, 54 + a));
     }
     this.startSimulation(process.env.SIMULATION_INTERVAL | interval);
     this.startSocketCommunication(process.env.SOCKET_INTERVAL | interval);
@@ -101,9 +107,11 @@ export class LifeSimulator {
       }
     }, interval);
   }
-
-  public addCells(cells: Cell[]) {
-
+  // TODO add interface for x and y position of cells
+  public addCells(socket: Socket, cells: any[]) {
+    for (let a = 0; a < cells.length; a++) {
+      this.liveCells.push(new Cell(cells[a].x, cells[a].y));
+    }
   }
 
   public static generateField(width: number, height: number) {
