@@ -2,6 +2,7 @@ import { socketServer } from '../server';
 import { Cell } from './cell-model';
 import { SocketEventEnum } from '../../commons/enums/socket-event-enum';
 import { Socket } from 'socket.io';
+import {PlayerSocketInterface} from '../interfaces/player-socket-interface';
 
 export class LifeSimulator {
 
@@ -18,19 +19,6 @@ export class LifeSimulator {
     this.liveCells = [];
     this.generateHashField();
     this.generateNeighboursHash();
-    this.liveCells.push(new Cell(40, 40));
-    this.liveCells.push(new Cell(40, 41));
-    this.liveCells.push(new Cell(41, 40));
-    this.liveCells.push(new Cell(46, 46));
-    this.liveCells.push(new Cell(47, 46));
-    this.liveCells.push(new Cell(46, 47));
-    for (let a = 0; a < 100; a += 6) {
-      this.liveCells.push(new Cell(53 + a, 53 + a));
-      this.liveCells.push(new Cell(53 + a, 54 + a));
-      this.liveCells.push(new Cell(53 + a, 55 + a));
-      this.liveCells.push(new Cell(52 + a, 55 + a));
-      this.liveCells.push(new Cell(51 + a, 54 + a));
-    }
     this.startSimulation(process.env.SIMULATION_INTERVAL | interval);
     this.startSocketCommunication(process.env.SOCKET_INTERVAL | interval);
   }
@@ -38,7 +26,7 @@ export class LifeSimulator {
   public startSimulation(interval: number) {
     setTimeout(() => {
       const tempLiveCells: Cell[] = [];
-      const neighbourCells: any[] = [];
+      const neighbourCells: any[] = []; // TODO CREATE INTERFACE
       const indexArray: number[] = [];
       const markedForDeletion: number[] = [];
       for (let a = 0; a < this.liveCells.length; a++) {
@@ -61,6 +49,7 @@ export class LifeSimulator {
             !this.cellField[index] &&
             this.numHash[this.calculateNeighbours(indexX, indexY)] === 3) {
             neighbourCells[index] = {};
+            neighbourCells[index].owner = undefined;
             neighbourCells[index].x = indexX;
             neighbourCells[index].y = indexY;
             indexArray.push(index);
@@ -73,7 +62,7 @@ export class LifeSimulator {
         this.cellField[markedForDeletion[a]] = undefined;
       }
       for (let a = 0; a < indexArray.length; a++) {
-        tempLiveCells.push(new Cell(neighbourCells[indexArray[a]].x, neighbourCells[indexArray[a]].y));
+        tempLiveCells.push(new Cell(neighbourCells[indexArray[a]].x, neighbourCells[indexArray[a]].y, neighbourCells[a].owner));
       }
       this.liveCells = tempLiveCells;
       this.startSimulation(interval);
@@ -84,9 +73,10 @@ export class LifeSimulator {
 
     setInterval(() => {
       for (let a = 0; a < socketServer.socketList.length; a++) {
-        const socket = socketServer.sockets[socketServer.socketList[a] as any];
+        const socket: PlayerSocketInterface = socketServer.sockets[socketServer.socketList[a] as any];
         if (socket.s.connected) {
           const viewPortCells: Cell[] = [];
+          let dataArray: Int32Array;
           try {
             // TODO might be able to speed this up with calculating beforehand
             for (let b = 0; b < socket.viewPortH; b++) {
@@ -99,10 +89,17 @@ export class LifeSimulator {
                 }
               }
             }
+            dataArray = new Int32Array(viewPortCells.length * 3 + 1);
+            dataArray[0] = viewPortCells.length * 3 + 1;
+            for (let b = 0; b < viewPortCells.length; b++) {
+              dataArray[1 + b * 3] = viewPortCells[b].x;
+              dataArray[2 + b * 3] = viewPortCells[b].y;
+              dataArray[3 + b * 3] = 0;
+            }
           } catch (error) {
             console.log('NEEDS TO BE THREAD SAFE', error);
           }
-          socket.s.emit(SocketEventEnum.updateField, viewPortCells);
+          socket.s.emit(SocketEventEnum.updateField, dataArray);
         }
       }
     }, interval);
@@ -110,7 +107,7 @@ export class LifeSimulator {
   // TODO add interface for x and y position of cells
   public addCells(socket: Socket, cells: any[]) {
     for (let a = 0; a < cells.length; a++) {
-      this.liveCells.push(new Cell(cells[a].x, cells[a].y));
+      this.liveCells.push(new Cell(cells[a].x, cells[a].y, socketServer.sockets[socket.id as any]));
     }
   }
 

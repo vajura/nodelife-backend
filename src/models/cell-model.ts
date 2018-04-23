@@ -1,11 +1,9 @@
-import { Socket } from 'socket.io';
+import { PlayerSocketInterface } from '../interfaces/player-socket-interface';
 
 export class Cell {
 
   public alive: number;
   public ignore: boolean;
-  public color: any;
-  public owner: Socket;
   public liveNeighbours = 0;
   public index: number;
 
@@ -13,10 +11,9 @@ export class Cell {
   public static height: number;
   public static width: number;
 
-  constructor(public x: number, public y: number) {
+  constructor(public x: number, public y: number, public owner: PlayerSocketInterface) {
     this.alive = 1;
     this.ignore = true;
-    this.color = 0xFF000000;
     const index = y * Cell.width + x;
     this.index = index;
     Cell.cellField[index] = this;

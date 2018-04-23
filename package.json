@@ -40,9 +40,12 @@
     "lodash": "^4.17.4",
     "lusca": "^1.4.1",
     "moment": "^2.20.1",
+    "mongodb": "^3.0.7",
     "mongoose": "^4.6.6",
     "mongoose-url-slugs": "^1.0.2",
     "morgan": "^1.7.0",
+    "node-sass": "^4.5.2",
+    "nodemon": "^1.11.0",
     "passport": "0.3.2",
     "passport-local": "^1.0.0",
     "pug": "^2.0.0-beta6",
@@ -50,6 +53,7 @@
     "socket.io": "^2.1.0",
     "ts-node": "^4.1.0",
     "tslint": "^5.9.1",
+    "typescript": "^2.4.0",
     "xml2js": "^0.4.19"
   },
   "devDependencies": {
@@ -71,8 +75,6 @@
     "@types/request": "0.0.45",
     "concurrently": "^3.4.0",
     "node-sass": "^4.5.2",
-    "nodemon": "^1.11.0",
-    "shelljs": "^0.7.7",
-    "typescript": "^2.4.0"
+    "shelljs": "^0.7.7"
   }
 }
