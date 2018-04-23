@@ -62,7 +62,7 @@ export class LifeSimulator {
         this.cellField[markedForDeletion[a]] = undefined;
       }
       for (let a = 0; a < indexArray.length; a++) {
-        tempLiveCells.push(new Cell(neighbourCells[indexArray[a]].x, neighbourCells[indexArray[a]].y, neighbourCells[a].owner));
+        tempLiveCells.push(new Cell(neighbourCells[indexArray[a]].x, neighbourCells[indexArray[a]].y, neighbourCells[indexArray[a]].owner));
       }
       this.liveCells = tempLiveCells;
       this.startSimulation(interval);
