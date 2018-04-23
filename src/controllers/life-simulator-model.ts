@@ -31,7 +31,8 @@ export class LifeSimulator {
       const markedForDeletion: number[] = [];
       for (let a = 0; a < this.liveCells.length; a++) {
         this.liveCells[a].liveNeighbours = this.calculateNeighbours(this.liveCells[a].x, this.liveCells[a].y);
-        if (this.numHash[this.liveCells[a].liveNeighbours]) {
+        if (this.numHash[this.liveCells[a].liveNeighbours] && this.liveCells[a].alive > 0) {
+          this.liveCells[a].alive--;
           tempLiveCells.push(this.liveCells[a]);
         }
         else {
@@ -50,6 +51,7 @@ export class LifeSimulator {
             this.numHash[this.calculateNeighbours(indexX, indexY)] === 3) {
             neighbourCells[index] = {};
             neighbourCells[index].owner = this.liveCells[a].owner;
+            neighbourCells[index].alive = this.liveCells[a].alive;
             neighbourCells[index].x = indexX;
             neighbourCells[index].y = indexY;
             indexArray.push(index);
@@ -62,7 +64,10 @@ export class LifeSimulator {
         this.cellField[markedForDeletion[a]] = undefined;
       }
       for (let a = 0; a < indexArray.length; a++) {
-        tempLiveCells.push(new Cell(neighbourCells[indexArray[a]].x, neighbourCells[indexArray[a]].y, neighbourCells[indexArray[a]].owner));
+        tempLiveCells.push(new Cell(neighbourCells[indexArray[a]].x,
+          neighbourCells[indexArray[a]].y,
+          neighbourCells[indexArray[a]].owner,
+          neighbourCells[indexArray[a]].alive));
       }
       this.liveCells = tempLiveCells;
       this.startSimulation(interval);
@@ -107,7 +112,7 @@ export class LifeSimulator {
   // TODO add interface for x and y position of cells
   public addCells(socket: Socket, cells: any[]) {
     for (let a = 0; a < cells.length; a++) {
-      this.liveCells.push(new Cell(cells[a].x, cells[a].y, socketServer.sockets[socket.id as any]));
+      this.liveCells.push(new Cell(cells[a].x, cells[a].y, socketServer.sockets[socket.id as any], 1000));
     }
   }
 
