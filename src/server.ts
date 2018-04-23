@@ -18,7 +18,7 @@ import * as bluebird from 'bluebird';
 import * as HttpStatus from 'http-status-codes';
 import { BaseController } from './controllers/base-controller';
 import { SocketServer } from './controllers/socket';
-import { LifeSimulator } from './models/life-simulator-model';
+import { LifeSimulator } from './controllers/life-simulator-model';
 const cors = require('cors');
 const MongoStore = mongo(session);
 dotenv.config({ path: '.env' });
@@ -81,7 +81,7 @@ function startSocketIO() {
 }
 
 function startLifeSimulator() {
-  lifeSimulator = new LifeSimulator(5000, 5000, 150);
+  lifeSimulator = new LifeSimulator(5000, 5000, process.env.SIMULATION_INTERVAL);
 }
 
 function defineRoutes() {

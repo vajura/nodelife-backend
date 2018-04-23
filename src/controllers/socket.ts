@@ -55,12 +55,17 @@ export class SocketServer {
     this.sockets[socket.id as any].zoom = data.zoom;
   }
 
+  randomColorGen(): number {
+    return Math.floor((Math.random() * 16384));
+  }
+
   onConnect(socket: Socket) {
     this.socketList.push(socket.id);
     this.sockets[socket.id as any] = {
       s: socket,
       ...createPlayer()
     };
+    this.sockets[socket.id as any].color = this.randomColorGen();
   }
 
   onDisconnect(socket: Socket) {
